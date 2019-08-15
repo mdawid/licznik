@@ -1,3 +1,5 @@
+#include <WiFiManager.h>
+
 /*
   ESP8266 Blink by Simon Peter
   Blink the blue LED on the ESP-01 module
@@ -9,9 +11,37 @@
   Note that this sketch uses LED_BUILTIN to find the pin with the internal LED
 */
 
+#include <ESP8266WiFi.h>
+#include <WiFiClientSecure.h>
+#include <ESP8266WebServer.h>
+#include <DNSServer.h>
+#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
+#include <CStringBuilder.h>
+#include <DoubleResetDetect.h>
 #include <Ticker.h>
 
-Ticker flipper;
+#include "config.h"
+
+// maximum number of seconds between resets that
+// counts as a double reset
+#define DRD_TIMEOUT 2.0
+// address to the block in the RTC user memory
+// change it if it collides with another usage
+// of the address block
+#define DRD_ADDRESS 0x00
+
+#define WIFI_CONNECTION_TIMEOUT_S 30
+
+DoubleResetDetect drd(DRD_TIMEOUT, DRD_ADDRESS);
+
+const char* host = "docs.google.com";
+const int httpsPort = 443;
+
+// Use web browser to view and copy
+// SHA1 fingerprint of the certificate
+const char* fingerprint = "‎c8 47 46 6b 7b bb d0 d4 a3 1c e9 7a 40 74 9e cc ba fa 5e c0";
+
+const char* formId = FORM_TOKEN;
 
 enum State {
   LO,
@@ -32,7 +62,10 @@ enum State {
 volatile State currentState = LO;
 volatile int steps = 0;
 volatile int idx = 0;
+
 int saved_reads[READS_SIZE];
+
+Ticker flipper;
 
 void readA0() {
   int sensorValue = analogRead(A0);
