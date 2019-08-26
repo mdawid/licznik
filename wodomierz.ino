@@ -63,8 +63,8 @@ enum State {
 #define MAX_FAILED_SENDS 128  // to znaczy ze mozemy zbuforowac do 128" nieudanych prob wyslania danych
 #define READS_SIZE (READS_TO_SEND * MAX_FAILED_SENDS )
 
-#define HI_THRESHOLD 250
-#define LO_THRESHOLD 150
+#define HI_THRESHOLD 350
+#define LO_THRESHOLD 250
 
 volatile State currentState = LO;
 volatile int steps = 0;
@@ -76,7 +76,7 @@ Ticker flipper;
 
 void readA0() {
   int sensorValue = analogRead(A0);
-  
+  //Serial.println( sensorValue );
   steps++;
   
   State lastState = currentState;
