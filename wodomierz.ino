@@ -63,8 +63,8 @@ enum State {
 #define MAX_FAILED_SENDS 128  // to znaczy ze mozemy zbuforowac do 128" nieudanych prob wyslania danych
 #define READS_SIZE (READS_TO_SEND * MAX_FAILED_SENDS )
 
-#define HI_THRESHOLD 350
-#define LO_THRESHOLD 250
+#define HI_THRESHOLD 250
+#define LO_THRESHOLD 150
 
 volatile State currentState = LO;
 volatile int steps = 0;
@@ -146,7 +146,8 @@ void connect() {
 int send( int rssi, int ticksReadTime, String ticksBuffer ) {
 
   WiFiClientSecure client;
-
+  client.setInsecure();
+  
   connect();
   
   boolean connected;
@@ -156,7 +157,7 @@ int send( int rssi, int ticksReadTime, String ticksBuffer ) {
     Serial.println(host);
     connected = client.connect(host, httpsPort);
     if (connected) { 
-      break; 
+      break;
     }
     
     client.stop();
@@ -283,6 +284,9 @@ void setup() {
 
   ssid = WiFi.SSID();
   password = WiFi.psk();
+
+  Serial.print("***SSID: "); Serial.println( ssid );
+  Serial.print("***Password: "); Serial.println( password );
 
   while(1) {
     int end_idx = idx;
